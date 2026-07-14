@@ -1,0 +1,24 @@
+{
+  "name": "flyrank-ai-todolist",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev":""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harito-git/flyrank-ai-todolist.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/harito-git/flyrank-ai-todolist/issues"
+  },
+  "homepage": "https://github.com/harito-git/flyrank-ai-todolist#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
