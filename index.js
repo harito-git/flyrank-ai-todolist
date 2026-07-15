@@ -44,8 +44,68 @@ app.get('/tasks/:id', (req, res) => {
     }
 })
 
+//checkpoint 2: add tasks
+app.post('/tasks', (req, res) => {
+    const { title } = req.body;
+    const title_to_string = String(title);
+    const title_found = to_do_list.find((t)=> t.title === title_to_string);
+    if(title_found === undefined){
+        to_do_list.push({id: to_do_list.length+1, title: title_to_string, done:false});
+        const newTaskAdded = to_do_list.find((t) => t.title === title_to_string);
+        return res.status(201).json(newTaskAdded);
+    }
+    else{
+        return res.status(400).json("Bad request, please create a new task, title is missing or empty or already in tasks");
+    }
+});
 
+//update tasks
+app.put('/tasks/:id', (req, res) => {
+    const {title, done} = req.body;
+    const title_to_string = String(title);
+    const urlID = req.params.id;
+    const done_to_boolean = Boolean(done); 
+     //parseInt() function covnerts a string to an integer
+     const id_to_integer = parseInt(urlID, 10);
+     //find an integer
+     const found = to_do_list.find((n) => n.id === id_to_integer);
+
+
+     //check for id in put request to update title and done
+    if(found !== undefined && title !== undefined && done !== undefined){
+        found.title = title;
+        found.done = done;
+        return res.status(201).json(found);
+    }
+    else if(found !== undefined & (title === undefined || done === undefined)){
+        return res.status(400).json('Empty/invalid body, cannot update task.');
+    }
+    else if(found === undefined){
+        return res.status(404).json('Error 404, unknown id, not found in to-do list.');
+    }
+});
+
+
+//delete task
+app.delete('/tasks/:id', (req, res) => {
+   //get id from parameters
+   const urlID = req.params.id;
+   //parseInt() function covnerts a string to an integer
+   const id_to_integer = parseInt(urlID, 10);
+   //find an integer
+   const found = to_do_list.find((n) => n.id === id_to_integer);
+   if(found !== undefined){
+        const index_to_be_removed = to_do_list.indexOf(found);
+        to_do_list.pop(index_to_be_removed, 1);
+        return res.status(204).json('No Content');
+
+   } 
+   else{
+        return res.status(404).json('Try again, unknown id.');
+   }
+})
 
 app.listen(PORT, () => {
     console.log('Listening at http://localhost:3000');
 })
+
