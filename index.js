@@ -2,7 +2,10 @@ import express from 'express';
 import path from 'path';
 const PORT = 3000;
 const app = express();
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from './openapi.json' with {"type":"json"};
 app.use(express.json());
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 let to_do_list = [{id: 1, title: 'Room Cleanup', done:false}, {id:2, title: 'Groceries', done:false}, {id:3, title:'Attend flyrank backend session', done:true}]
 
@@ -22,10 +25,10 @@ app.get('/health', (req, res) => {
 
 app.get('/tasks', (req, res) => {
     const tasks = JSON.stringify(to_do_list);
-    res.json(to_do_list);
+    res.status(200).json(to_do_list);
 });
 
-//stop googling, use your msucles and brain
+//First task
 app.get('/tasks/:id', (req, res) => {
     //get id from parameters
     const urlID = req.params.id;
@@ -49,8 +52,10 @@ app.post('/tasks', (req, res) => {
     const { title } = req.body;
     const title_to_string = String(title);
     const title_found = to_do_list.find((t)=> t.title === title_to_string);
+    let tasks_list = to_do_list.length;
     if(title_found === undefined){
-        to_do_list.push({id: to_do_list.length+1, title: title_to_string, done:false});
+        tasks_list+=1;
+        to_do_list.push({id: tasks_list, title: title_to_string, done:false});
         const newTaskAdded = to_do_list.find((t) => t.title === title_to_string);
         return res.status(201).json(newTaskAdded);
     }
@@ -73,8 +78,8 @@ app.put('/tasks/:id', (req, res) => {
 
      //check for id in put request to update title and done
     if(found !== undefined && title !== undefined && done !== undefined){
-        found.title = title;
-        found.done = done;
+        found.title = String(title);
+        found.done = Boolean(done);
         return res.status(201).json(found);
     }
     else if(found !== undefined & (title === undefined || done === undefined)){
@@ -96,7 +101,7 @@ app.delete('/tasks/:id', (req, res) => {
    const found = to_do_list.find((n) => n.id === id_to_integer);
    if(found !== undefined){
         const index_to_be_removed = to_do_list.indexOf(found);
-        to_do_list.pop(index_to_be_removed, 1);
+        to_do_list.splice(index_to_be_removed, 1);
         return res.status(204).json('No Content');
 
    } 
@@ -106,6 +111,6 @@ app.delete('/tasks/:id', (req, res) => {
 })
 
 app.listen(PORT, () => {
-    console.log('Listening at http://localhost:3000');
+    console.log('Listening at http://localhost:3000/docs');
 })
 
