@@ -52,10 +52,10 @@ app.post('/tasks', (req, res) => {
     const { title } = req.body;
     const title_to_string = String(title);
     const title_found = to_do_list.find((t)=> t.title === title_to_string);
-    let tasks_list = to_do_list.length;
+    let tasks_list = Math.max(to_do_list.length, tasks_list);
     if(title_found === undefined){
-        tasks_list+=1;
         to_do_list.push({id: tasks_list, title: title_to_string, done:false});
+        tasks_list+=1;
         const newTaskAdded = to_do_list.find((t) => t.title === title_to_string);
         return res.status(201).json(newTaskAdded);
     }
