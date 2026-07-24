@@ -7,11 +7,13 @@ const app = express();
 const Database = require('better-sqlite3');
 const db = new Database('tasks.db');
 const port = 3000;
+app.use(express.json());
+let tasks_list = 0;
 
-db.exec('CREATE TABLE IF NOT EXISTS tasks(id integer primary key, title varchar(200), done bool)');
+db.exec('CREATE TABLE IF NOT EXISTS tasks(id INTEGER PRIMARY KEY AUTOINCREMENT, title varchar(200), done bool)');
 
 //insert query into databases to bypasss primary key constraint sqlite error.
-const insert = db.prepare('INSERT OR REPLACE into tasks(id, title, done) values (@id, @title, @done)');
+const insert = db.prepare('INSERT OR REPLACE into tasks(title, done) values (@title, @done)');
 
 //sue a transaction function
 const insert_3_objects = db.transaction((objs) => {
@@ -20,11 +22,11 @@ const insert_3_objects = db.transaction((objs) => {
 })
 
 insert_3_objects([
-    {id: 1, title: 'Wash hands', done:'false'},
-    {id:2, title: 'Plan your schedule', done:'false'},
-    {id:3, title: 'Clean room', done:'true'}
+    {title: 'Wash hands', done:0},
+    {title: 'Plan your schedule', done:0},
+    {title: 'Clean room', done:1}
 ]);
-console.log(insert);
+
 
 app.get('/', (req, res) => {
     res.json({name: "Task API", version:"1.0", endpoints:["/tasks"]});
@@ -71,13 +73,18 @@ app.get('/tasks/:id', (req, res) => {
 app.post('/tasks', (req, res) => {
     const { title } = req.body;
     const title_to_string = String(title);
-    const title_found = to_do_list.find((t)=> t.title === title_to_string);
-    let tasks_list = Math.max(to_do_list.length, tasks_list);
-    if(title_found === undefined){
-        to_do_list.push({id: tasks_list, title: title_to_string, done:false});
+    const title_found = db.prepare('SELECT title from tasks where title = ?');
+    const find_title = title_found.get(title_to_string);
+    const find_total_number_of_items = db.prepare('SELECT COUNT(title) from tasks');
+    const number_of_items = find_total_number_of_items.get();
+    tasks_list = Math.max(find_total_number_of_items, tasks_list);
+    if(find_title === undefined){
+        const added_query = db.prepare('INSERT INTO tasks (title, done) VALUES (?, ?)');
+        const newtask = added_query.run(title, 0);
         tasks_list+=1;
-        const newTaskAdded = to_do_list.find((t) => t.title === title_to_string);
-        return res.status(201).json(newTaskAdded);
+        const added_new_task = db.prepare('SELECT * from tasks where title = ?');
+        const new_titles = added_new_task.get(title_to_string);
+        return res.status(201).json(new_titles);
     }
     else{
         return res.status(400).json("Bad request, please create a new task, title is missing or empty or already in tasks");
@@ -112,22 +119,15 @@ app.put('/tasks/:id', (req, res) => {
 
 
 //checkpioint 4: delete task
-app.delete('/tasks/:id', (req, res) => {
+app.delete('/tasks', (req, res) => {
    //get id from parameters
-   const urlID = req.params.id;
+   
    //parseInt() function covnerts a string to an integer
-   const id_to_integer = parseInt(urlID, 10);
-   //find an integer
-   const found = to_do_list.find((n) => n.id === id_to_integer);
-   if(found !== undefined){
-        const index_to_be_removed = to_do_list.indexOf(found);
-        to_do_list.splice(index_to_be_removed, 1);
-        return res.status(204).json('No Content');
 
-   } 
-   else{
-        return res.status(404).json('Try again, unknown id.');
-   }
+   
+        const delete_task = db.prepare('DELETE from tasks');
+        delete_task.run();
+        return res.status(204).json('No Content');
 })
 
 
