@@ -10,6 +10,7 @@ const port = 3000;
 
 db.exec('CREATE TABLE IF NOT EXISTS tasks(id integer primary key, title varchar(200), done bool)');
 
+//insert query into databases to bypasss primary key constraint sqlite error.
 const insert = db.prepare('INSERT OR REPLACE into tasks(id, title, done) values (@id, @title, @done)');
 
 //sue a transaction function
@@ -23,7 +24,7 @@ insert_3_objects([
     {id:2, title: 'Plan your schedule', done:'false'},
     {id:3, title: 'Clean room', done:'true'}
 ]);
-console.log(insert_3_objects);
+console.log(insert);
 
 app.get('/', (req, res) => {
     res.json({name: "Task API", version:"1.0", endpoints:["/tasks"]});
@@ -40,8 +41,8 @@ app.get('/health', (req, res) => {
 //get all tasks
 
 app.get('/tasks', (req, res) => {
-    const tasks = JSON.stringify(to_do_list);
-    res.status(200).json(to_do_list);
+    const tasks = db.prepare('SELECT * from tasks').all();
+    res.status(200).json(tasks);
 });
 
 //First task
@@ -51,9 +52,12 @@ app.get('/tasks/:id', (req, res) => {
     //parseInt() function covnerts a string to an integer
     const id_to_integer = parseInt(urlID, 10);
     //find an integer
-    const found = to_do_list.find((n) => n.id === id_to_integer);
-    if(found !== undefined){
-        res.status(200).json(found);
+    const found = db.prepare('SELECT * from tasks where id = ?');
+    const found_number = found.get(id_to_integer);
+    if(found_number !== undefined){
+        console.log(found_number);
+        return res.status(200).json(found_number);
+
 
     }
     else{
