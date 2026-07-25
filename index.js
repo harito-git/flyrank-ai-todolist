@@ -13,7 +13,7 @@ let tasks_list = 0;
 db.exec('CREATE TABLE IF NOT EXISTS tasks(id INTEGER PRIMARY KEY AUTOINCREMENT, title varchar(200), done bool)');
 
 //insert query into databases to bypasss primary key constraint sqlite error.
-const insert = db.prepare('INSERT OR REPLACE into tasks(title, done) values (@title, @done)');
+const insert = db.prepare('INSERT OR REPLACE into tasks(title, done) Select @title, @done from tasks WHERE @title is null and @done is null');
 
 //sue a transaction function
 const insert_3_objects = db.transaction((objs) => {
@@ -96,38 +96,48 @@ app.put('/tasks/:id', (req, res) => {
     const {title, done} = req.body;
     const title_to_string = String(title);
     const urlID = req.params.id;
-    const done_to_boolean = Boolean(done); 
+    const done_to_boolean = Number(done); 
      //parseInt() function covnerts a string to an integer
      const id_to_integer = parseInt(urlID, 10);
      //find an integer
-     const found = to_do_list.find((n) => n.id === id_to_integer);
+     const title_found = db.prepare('SELECT id from tasks where id = ?');
+     const find_title = title_found.get(id_to_integer);
+     
 
 
      //check for id in put request to update title and done
-    if(found !== undefined && title !== undefined && done !== undefined){
-        found.title = String(title);
-        found.done = Boolean(done);
-        return res.status(201).json(found);
+    if(find_title !== undefined && (title_to_string !== undefined || done_to_boolean !== undefined)){
+        const update_tasks = db.prepare('UPDATE tasks SET title = ?, done = ? WHERE id = ?');
+        const update_new_tasks = update_tasks.run(title_to_string, done_to_boolean, id_to_integer);
+        console.log(update_new_tasks.changes);
+        return res.status(201).json(update_new_tasks);
     }
-    else if(found !== undefined & (title === undefined || done === undefined)){
+    else if(find_title !== undefined && (title_to_string === undefined || done_to_boolean === undefined)){
         return res.status(400).json('Empty/invalid body, cannot update task.');
     }
-    else if(found === undefined){
+    else if(find_title === undefined){
         return res.status(404).json('Error 404, unknown id, not found in to-do list.');
     }
 });
 
 
 //checkpioint 4: delete task
-app.delete('/tasks', (req, res) => {
-   //get id from parameters
-   
-   //parseInt() function covnerts a string to an integer
-
-   
-        const delete_task = db.prepare('DELETE from tasks');
-        delete_task.run();
+app.delete('/tasks/:id', (req, res) => {
+    //get id from parameters
+    const urlID = req.params.id;
+    //parseInt() function covnerts a string to an integer
+    const id_to_integer = parseInt(urlID, 10);
+    const find_task_to_delete = db.prepare('SELECT id from tasks where id = ?');
+    const find_task_to_delete_get = find_task_to_delete.get(id_to_integer);
+    if(find_task_to_delete !== undefined){
+        //parseInt() function covnerts a string to an integer
+        const delete_task = db.prepare('DELETE FROM tasks WHERE id = ?');
+        const run_tasks = delete_task.run(id_to_integer);
         return res.status(204).json('No Content');
+    }
+    else{
+        return res.status(404).json('Unknown, no id is not found.');
+    }
 })
 
 
