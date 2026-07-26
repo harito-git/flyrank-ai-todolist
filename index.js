@@ -1,24 +1,31 @@
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import path from 'path';
 const PORT = 3000;
 const app = express();
 
 //create database, databse is our object, taks.db is where our database, your data live sin a fiel called tasks.db.
-const Database = require('better-sqlite3');
+import Database from 'better-sqlite3';
 const db = new Database('tasks.db');
+//Checkpoint 5:
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from './openapi.json' with {"type":"json"};
+
+//Express needs this to aprse JSON bodies.
+app.use(express.json());
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const port = 3000;
 app.use(express.json());
 let tasks_list = 0;
 
-db.exec('CREATE TABLE IF NOT EXISTS tasks(id INTEGER PRIMARY KEY AUTOINCREMENT, title varchar(200), done bool)');
-
-//insert query into databases to bypasss primary key constraint sqlite error.
-const insert = db.prepare('INSERT OR REPLACE into tasks(title, done) Select @title, @done from tasks WHERE @title is null and @done is null');
+db.exec('CREATE TABLE IF NOT EXISTS tasks(id INTEGER PRIMARY KEY, title varchar(200), done bool)');
 
 //sue a transaction function
 const insert_3_objects = db.transaction((objs) => {
-    for(const obj of objs) 
-        insert.run(obj);
+    const count = db.prepare('SELECT COUNT(*) as count from tasks').get().count;
+    if(count == 0){
+        for(const obj of objs) 
+            db.prepare('INSERT or REPLACE into tasks(title, done) VALUES (@title, @done)').run(obj);
+    }
 })
 
 insert_3_objects([
