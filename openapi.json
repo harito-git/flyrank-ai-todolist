@@ -1,0 +1,256 @@
+{
+    "openapi":"3.0.0",
+    "info": {"title":"OPenAPI Harit Oza CRUD specification", "version":"0.1.9"},
+    "paths":{
+        "/health":
+        {
+            "get":{
+                "summary":"The API is running fine.",
+                "responses": {
+                    "200":{
+                        "description":"To do list of tasks is returned in array format in JSON.",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "type":"string",
+                                    "items":{
+                                        "type":"string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks":{
+            "get":{
+                "summary":"The API here returns the tasks in the todo list.",
+                "responses":{
+                    "200":{
+                        "description":"Return a JSON array of tasks.",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                "type":"array",
+                                "items":{
+                                    "type":"object",
+                                        "properties": {
+                                        "id":{"type":"integer"},
+                                        "title":{"type":"string"},
+                                        "done":{"type":"boolean"}
+                                    }
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            },
+            "post":{
+                "summary":"The API here adds a new task to the array of JSON objects in the to-do list.",
+                "requestBody":{
+                    "required":true,
+                    "content":{
+                        "application/json":{
+                            "schema":{
+                            "type":"object",
+                           
+                                "properties":{
+                                    "title":{"type":"string"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses":{
+                    "201":{
+                        "description":"The API here adds a task to the to-list JSON object array successfully.",
+                        "content":{
+                            "application/json":{
+                            "schema":{
+                            "type":"object",
+                            "properties":{
+                                        "id":{"type":"integer"},
+                                        "title":{"type":"string"},
+                                        "done":{"type":"boolean"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+        
+                "400":{
+                    "description":"The entry is not found in the object array.",
+                    "content":{
+                        "application/json":{
+                        "schema":{
+                            "type":"string"
+                        }
+                    }
+                }
+            }
+        }
+        }
+        },
+        "/tasks/{id}":{
+
+            "get":{
+                "summary":"Get the task specified by the ID.",
+                "parameters":[
+                    {"name":"id",
+                    "in":"path",
+                    "required":true,
+                    "schema":{
+                        "type":"integer"
+
+                    }
+                }
+            ],
+                "responses":{
+                    "200":{
+                        "description":"Return a JSON array of tasks.",
+                        "content":{
+                            "application/json":{
+                                "type":"object",
+                            "schema":{
+                                "properties":{
+                                        "schema": {
+                                            "id":{"type":"integer"},
+                                            "title":{"type":"string"},
+                                            "done":{"type":"boolean"}
+                                        }
+                                    }
+                                }
+                            }
+                        
+                    },
+                    "404":{
+                        "description":"Return a string error message.",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "type":"string"
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    },
+    "put":{
+        "summary":"The API here allows a user to edit a task in the array of todolist objects.",
+        "parameters":[
+                    {"name":"id",
+                    "in":"path",
+                    "required":true,
+                    "schema":{
+                        "type":"integer"
+
+                    }
+                }
+            ],
+        "requestBody":{
+            "required":true,
+            "content":{
+                "application/json":{
+                    "schema":{
+                    "type":"object",
+                   
+                        "properties":{
+                            "title":{"type":"string"},
+                            "done":{"type":"boolean"}
+                        }
+                    }
+                }
+            }
+        },
+            "responses":{
+                "200":{
+                    "description":"Return a JSON object of edited task.",
+                    "content":{
+                        "application/json":{
+                            "type":"object",
+                        "schema":{
+                            "properties":{
+                                    "schema": {
+                                        "id":{"type":"integer"},
+                                        "title":{"type":"string"},
+                                        "done":{"type":"boolean"}
+                                    }
+                                }
+                            }
+                        }
+                    
+                }
+                },
+                "404":{
+                    "description":"Return a string error message.",
+                    "content":{
+                        "application/json":{
+                            "schema": {
+                                "type":"string"
+                                
+                            }
+                        }
+                    }
+                },
+                "400":{
+                    "description":"It returns an error if the reponse body is invalid or empty and it cannot be changed.",
+                    "content":{
+                        "application/json":{
+                            "schema": {
+                                "type":"string"
+                                
+                            }
+                        }
+                    }
+                }
+            }
+            },
+            "delete":{
+                "summary":"Deletes a task you specified by it's ID.",
+                "parameters":[
+                    {"name":"id",
+                    "in":"path",
+                    "required":true,
+                    "schema":{
+                        "type":"integer"
+
+                    }
+                }
+            ],
+            "responses":{
+                "204":{
+                        "description":"Return a string error message stating the object was successfully deleted.",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "type":"string"
+                                
+                                }
+                            }
+                        }
+                    },
+                    "404":{
+                        "description":"Return a string error message stating the object was not found.",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "type":"string"
+                                
+                                }
+                            }
+                        }
+                    }
+                }
+
+        }
+
+
+
+    }
+    }
+}
