@@ -1,25 +1,30 @@
+//Step 1 - Import libraries 
+//In SQlite3 - .prepare() function repares the query to run, .run() executes it, for UPDATE, CREATE, DELETE, INSERT and .get() has no parameters but rtetireves items and works for select. 
 import express from 'express';
 import path from 'path';
 const PORT = 3000;
 const app = express();
 
-//create database, databse is our object, taks.db is where our database, your data live sin a fiel called tasks.db.
+//create database, databse is our object, tasks.db is where our database, your data live sin a fiel called tasks.db.
 import Database from 'better-sqlite3';
+//create the database file, tasks.db.
 const db = new Database('tasks.db');
-//Checkpoint 5:
+
+//improt swagger ui and documentation.
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './openapi.json' with {"type":"json"};
 
-//Express needs this to aprse JSON bodies.
+//Express needs this to parse JSON bodies and run.
 app.use(express.json());
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const port = 3000;
 app.use(express.json());
 let tasks_list = 0;
 
+//create table if it does not exists intially, stage 1. 
 db.exec('CREATE TABLE IF NOT EXISTS tasks(id INTEGER PRIMARY KEY, title varchar(200), done bool)');
 
-//sue a transaction function
+//use a transaction function, to isnert the 3 tasks if the table is found to be empty. 
 const insert_3_objects = db.transaction((objs) => {
     const count = db.prepare('SELECT COUNT(*) as count from tasks').get().count;
     if(count == 0){
@@ -28,6 +33,7 @@ const insert_3_objects = db.transaction((objs) => {
     }
 })
 
+//call seed tasks function.
 insert_3_objects([
     {title: 'Wash hands', done:0},
     {title: 'Plan your schedule', done:0},
@@ -50,15 +56,15 @@ app.get('/health', (req, res) => {
 
 
 
-//Get tasks api endpoint crud task 2
-//get all tasks
 
+
+//Stage 1: Get requests, read, give me the lsit of all tasks and read them from the database. 
 app.get('/tasks', (req, res) => {
     const tasks = db.prepare('SELECT * from tasks').all();
     res.status(200).json(tasks);
 });
 
-//First task
+//Stage 1: Read one task by id from the databsase. 
 app.get('/tasks/:id', (req, res) => {
     //get id from parameters
     const urlID = req.params.id;
@@ -80,7 +86,7 @@ app.get('/tasks/:id', (req, res) => {
     }
 })
 
-//checkpoint 2: add tasks
+//checkpoint 2: add tasks to database. 
 app.post('/tasks', (req, res) => {
     const { title } = req.body;
     const title_to_string = String(title);
@@ -102,7 +108,7 @@ app.post('/tasks', (req, res) => {
     }
 });
 
-//checkpoint3: update tasks
+//checkpoint 3: update tasks in database.
 app.put('/tasks/:id', (req, res) => {
     const {title, done} = req.body;
     const title_to_string = String(title);
@@ -132,7 +138,7 @@ app.put('/tasks/:id', (req, res) => {
 });
 
 
-//checkpioint 4: delete task
+//checkpioint 4: delete task from the database.
 app.delete('/tasks/:id', (req, res) => {
     //get id from parameters
     const urlID = req.params.id;
@@ -151,7 +157,7 @@ app.delete('/tasks/:id', (req, res) => {
     }
 })
 
-
+//run the API on the server and lsiten on the port. 
 app.listen(PORT, () => {
     console.log('Listening at http://localhost:3000');
 });
