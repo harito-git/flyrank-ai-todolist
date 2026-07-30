@@ -1,14 +1,17 @@
 //Step 1 - Import libraries 
-//In SQlite3 - .prepare() function repares the query to run, .run() executes it, for UPDATE, CREATE, DELETE, INSERT and .get() has no parameters but rtetireves items and works for select. 
+//In PostgreSQL, import pg - postgresql with express js. Let's go!
 import express from 'express';
 import path from 'path';
+import pg from 'pg';
+const {Pool, Client} = pg;
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL
+
+})
+console.log('Check to make sure that the pool is running', pool);
 const PORT = 3000;
 const app = express();
 
-//create database, databse is our object, tasks.db is where our database, your data live sin a fiel called tasks.db.
-import Database from 'better-sqlite3';
-//create the database file, tasks.db.
-const db = new Database('tasks.db');
 
 //improt swagger ui and documentation.
 import swaggerUi from 'swagger-ui-express';
@@ -22,22 +25,39 @@ app.use(express.json());
 let tasks_list = 0;
 
 //create table if it does not exists intially, stage 1. 
-db.exec('CREATE TABLE IF NOT EXISTS tasks(id INTEGER PRIMARY KEY, title varchar(200), done bool)');
+const database = await pool.query('CREATE TABLE IF NOT EXISTS tasks(id INTEGER PRIMARY KEY generated always as identity, title varchar(200), done bool)');
+console.log(database.rows);
 
-//use a transaction function, to isnert the 3 tasks if the table is found to be empty. 
-const insert_3_objects = db.transaction((objs) => {
-    const count = db.prepare('SELECT COUNT(*) as count from tasks').get().count;
-    if(count == 0){
-        for(const obj of objs) 
-            db.prepare('INSERT or REPLACE into tasks(title, done) VALUES (@title, @done)').run(obj);
-    }
+/*
+const client = new Client({
+    user: process.env.DATABASE_USER,
+    host:5432,
+    database: process.env.DATABASE_NAME,
+    password: process.env.DATABASE_PASSWORD
 })
+
+*/
+
+//use a transaction function, to insert the 3 tasks if the table is found to be empty. 
+const insert_3_objects = async => {(objs) => {
+    const count = pool.query('SELECT COUNT(*) as count from tasks');
+    const counter = parseInt(count.rows[0].count, 10);
+    console.log("The counter is", counter);
+    if(counter === 0) {
+        for(const obj of objs) 
+            pool.query('INSERT or REPLACEinto tasks(id, title, done) VALUES ($1, $2, $3) RETURNING *'
+            , [obj.id, obj.title, obj.done]);
+        }
+    }
+};
+    
+
 
 //call seed tasks function.
 insert_3_objects([
-    {title: 'Wash hands', done:0},
-    {title: 'Plan your schedule', done:0},
-    {title: 'Clean room', done:1}
+    {id: 1, title: 'Wash hands', done:0},
+    {id: 2, title: 'Plan your schedule', done:0},
+    {id: 3,title: 'Clean room', done:1}
 ]);
 
 
