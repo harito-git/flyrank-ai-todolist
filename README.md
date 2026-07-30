@@ -45,6 +45,9 @@ SELECT * from tasks -- which lists every tasks. --
 Screenshot of example query
 <img width="861" height="694" alt="Screenshot_for_SQL_Database" src="https://github.com/user-attachments/assets/1ce03e11-1262-40a3-9dd7-16f8b02a33b6" />
 
+# AI vs me section
+So, what the AI did better was use a initilizeDatabase() function to handle the seed task and check if the whole database is empty for handling the seed tasks. Much cleaner code and schema. What the AI missed was that when deleting a task, it ran delete before checking any of the conditions, it did check if info.changes === 0. But, with sqlite or any database if it's empty. You will run into an error right away. What my prompt forget to specify is create a .gitignore file. So, before runnign it, when I ran npm install, there were 20 security vulnerabilties in the npm packages. 
+
 # Table of API Endpoints
 Here is a clear summary of all the available API endpoints implemented in your Express application.
 
