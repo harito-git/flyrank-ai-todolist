@@ -1,3 +1,17 @@
+
+# SQLite database
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+lerna-error.log*
 #Dependencies
 ./node_modules
 node_modules/

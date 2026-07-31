@@ -25,7 +25,7 @@ app.use(express.json());
 let tasks_list = 0;
 
 //create table if it does not exists intially, stage 1. 
-const database = await pool.query('CREATE TABLE IF NOT EXISTS tasks(id INTEGER PRIMARY KEY generated always as identity, title varchar(200), done bool)');
+const database = pool.query('CREATE TABLE IF NOT EXISTS tasks(id INTEGER PRIMARY KEY generated always as identity, title varchar(200), done bool)');
 console.log(database.rows);
 
 /*
@@ -79,29 +79,44 @@ app.get('/health', (req, res) => {
 
 
 //Stage 1: Get requests, read, give me the lsit of all tasks and read them from the database. 
-app.get('/tasks', (req, res) => {
-    const tasks = db.prepare('SELECT * from tasks').all();
-    res.status(200).json(tasks);
+app.get('/tasks', async(req, res) => {
+    const task_string = 'SELECT * from tasks';
+    const run_query = await pool.query(task_string);
+    console.log('Here are the rows, ', run_query.rows);
+
+
+    if(res.rows !== undefined) {
+        return res.status(400).json('error, task lsits is empty');
+    }
+    else {
+        return res.status(200).json(run_query.rows);
+    }
+
+
 });
 
-//Stage 1: Read one task by id from the databsase. 
-app.get('/tasks/:id', (req, res) => {
+//Stage 1: Read one task by id from the databsase. Need async/await since we need tor etireve data froma databse and query it.
+app.get('/tasks/:id', async(req, res) => {
     //get id from parameters
     const urlID = req.params.id;
     //parseInt() function covnerts a string to an integer
     const id_to_integer = parseInt(urlID, 10);
     //find an integer
-    const found = db.prepare('SELECT * from tasks where id = ?');
-    const found_number = found.get(id_to_integer);
-    if(found_number !== undefined){
+    //the concept of prepared staements
+    const query_database = {
+        text: 'SELECT * from tasks where id = $1',
+        values: [id_to_integer]
+    };
+    const found_number = await pool.query(query_database);
+    if(found_number.rows !== undefined){
         console.log(found_number);
-        return res.status(200).json(found_number);
+        return res.status(200).json(found_number.rows);
 
 
     }
     else{
         console.log('URL ID is ', urlID);
-        return res.status(404).json("{error: Task ${id} not found");
+        return res.status(404).json(`{error: Task ${urlID} not found`);
         
     }
 })
