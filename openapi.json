@@ -1,6 +1,11 @@
 {
     "openapi":"3.0.0",
     "info": {"title":"OPenAPI Harit Oza CRUD specification", "version":"0.1.9"},
+    "servers":[
+        {
+            "url": "http://localhost:3000"
+        }
+    ],
     "paths":{
         "/health":
         {
@@ -24,8 +29,29 @@
             }
         },
         "/tasks":{
+        
             "get":{
                 "summary":"The API here returns the tasks in the todo list.",
+                "operationId": "listTasks",
+        "parameters": [
+          {
+            "name": "done",
+            "in": "query",
+            "description": "Filter by completion status",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Filter tasks whose title contains this word",
+            "schema": {
+              "type": "string",
+              "example": "milk"
+            }
+          }
+        ],
                 "responses":{
                     "200":{
                         "description":"Return a JSON array of tasks.",
