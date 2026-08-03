@@ -38,18 +38,17 @@ const client = new Client({
 */
 
 //use a transaction function, to insert the 3 tasks if the table is found to be empty. 
-const insert_3_objects = async => {(objs) => {
-    const count = pool.query('SELECT COUNT(*) as count from tasks');
-    const counter = parseInt(count.rows[0].count, 10);
-    console.log("The counter is", counter);
-    if(counter === 0) {
-        for(const obj of objs) 
-            pool.query('INSERT or REPLACEinto tasks(id, title, done) VALUES ($1, $2, $3) RETURNING *'
+async function insert_3_objects(objs) {
+    const countResult= await pool.query('SELECT Count(*) from tasks');
+    const convertToInt = parseInt(countResult.rows[0].count, 10);
+    if(convertToInt === 0){
+        for(const obj of objs){
+            pool.query('INSERT into tasks(id, title, done) VALUES ($1, $2, $3) RETURNING *'
             , [obj.id, obj.title, obj.done]);
         }
+
     }
-};
-    
+} 
 
 
 //call seed tasks function.
@@ -197,7 +196,6 @@ app.delete('/tasks/:id', (req, res) => {
         values: [id_to_integer]
      }
      const find_id = pool.query(id_found);
-     console.log(find_id.rows[0]);
     if(find_id !== undefined){
         //parseInt() function covnerts a string to an integer
         const delete_task = {text:
