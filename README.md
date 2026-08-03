@@ -40,7 +40,7 @@ UI to show the OpenAPI documentation.
   
 So here's how it works and the API Endpoints: 
 # Here's how to install it:
-# 0. Clone the repository and navigate it into the directory and run it in docker:
+# 0. Clone the repository and navigate it into the directory and run it in docker make sure you have docker desktop running:
 ```
 git clone https://github.com/harito-git/flyrank-ai-todolist.git
 cd flyrank-ai-todolist
