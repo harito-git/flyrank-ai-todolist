@@ -4,6 +4,6 @@ FROM node:22.14.0-alpine
 WORKDIR /flyrank-ai-todolist
 #3. Copy the files you need.
 COPY . .
-RUN npm install -g node@latest
+RUN npm install -g npm@latest
 CMD ["node", "./index.js"]
 
