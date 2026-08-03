@@ -22,13 +22,22 @@ Framework:Express
 Database: PostgreSQL
   
 Containerization and CI/CD: Docker
+  
 Docker makes a development environment repeatable. 
+  
 Getting Started
+  
 Prerequisites:
+  
 Node.js
+  
 npm(Node package manager)
+  
 An openapi.json file defining the Swagger UI specification in the root directory.
-The description of this project is to create a basic CRUD API To-do list. The tech stack I used was JavaScript with Express and Swagger UI to show the OpenAPI documentation. 
+  
+The description of this project is to create a basic CRUD API To-do list. The tech stack I used was JavaScript with Express and Swagger   
+UI to show the OpenAPI documentation. 
+  
 So here's how it works and the API Endpoints: 
 # Here's how to install it:
 # 0. Clone the repository and navigate it into the social directory
