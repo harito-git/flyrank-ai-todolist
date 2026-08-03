@@ -243,20 +243,6 @@ curl -X DELETE http://localhost:3000/tasks/1
  <br>
 
 
-<br>`404 Not Found` — Error string if ID does not exist. |
-| **POST** | `/tasks` | Creates and appends a new task to the list. | `201 Created` — The newly created task object.<br>
-
-<br>`400 Bad Request` — Error string if title is missing or a duplicate. |
-| **PUT** | `/tasks/:id` | Updates an existing task's title and completion status. | `201 Created` — The updated task object.<br>
-
-<br>`400 Bad Request` — Missing fields.<br>
-
-<br>`404 Not Found` — Unknown ID. |
-| **DELETE** | `/tasks/:id` | Removes a task from the list by its ID. | `204 No Content` — Successfully removed.<br>
-
-<br>`404 Not Found` — Unknown ID. |
-| **GET** | `/docs` | Serves the interactive Swagger UI documentation. | `200 OK` — HTML/JavaScript Swagger documentation interface. |
-
 Output of A Curl Endpoint: 
 
 example: GET /tasks
