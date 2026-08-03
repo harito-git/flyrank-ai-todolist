@@ -1,21 +1,28 @@
 # flyrank-ai-todolist
 # FlyRankAI To-do List CRUD APP
-This program demosntrates the use of a backend systems with CRUD(Create, Read, Update, Delete), functionality with Node.js and Express. As well as PostgreSQL and Docker. 
+This program demosntrates the use of a backend systems with CRUD(Create, Read, Update, Delete), functionality with Node.js and Express.   
+As well as PostgreSQL and Docker. 
+  
 Full CRUD Operations: Create, Read, Update, and Delete tasks via intuitive REST endpoints.
+  
 Interactive API Documentation: Auto-generated UI for testing and exploring endpoints using Swagger UI.
+  
 In-Memory Storage: Fast, zero-configuration state management perfect for prototyping and local development.
+  
 Health Monitoring: Dedicated health check endpoint (/health) to instantly verify API uptime.
+  
 Tech Stack:
+  
 Language: JavaScript(Module)
+  
 Runtime: Node.js
+  
 Framework:Express
+  
 Database: PostgreSQL
+  
 Containerization and CI/CD: Docker
 Docker makes a development environment repeatable. 
-API Documentation: `swagger-ui`, OpenAPI
-All tasks are stored in an array of objects.
-Each task has the following properties:
-id(number), title(text) and done(true/false).
 Getting Started
 Prerequisites:
 Node.js
