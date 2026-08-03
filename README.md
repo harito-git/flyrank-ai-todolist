@@ -40,17 +40,18 @@ UI to show the OpenAPI documentation.
   
 So here's how it works and the API Endpoints: 
 # Here's how to install it:
-# 0. Clone the repository and navigate it into the social directory
+# 0. Clone the repository and navigate it into the directory and run it in docker:
 ```
 git clone git clone https://github.com/harito-git/flyrank-ai-todolist.git
 cd flyrank-ai-todolist
-#variables to set, see .env.example file.
-```
-# 1. Initialize the repository and install the requried dependencies to run with docker:
-```
-#Then do the examples. 
 cp .env.example .env
 docker compose up
+#variables to set, see .env.example file.
+```
+# 1. To close the app, and the container use the command below on docker compose down.
+```
+docker compose down
+
 ```
 # Why Docker was chosen
 Docker makes a dev environment repeatable.  
