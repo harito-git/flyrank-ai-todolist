@@ -1,5 +1,6 @@
 # flyrank-ai-todolist
 # FlyRankAI To-do List CRUD APP
+This program demosntrates the use of a backend systems with CRUD(Create, Read, Update, Delete), functionality with Node.js and Express. As well as PostgreSQL and Docker. 
 Full CRUD Operations: Create, Read, Update, and Delete tasks via intuitive REST endpoints.
 Interactive API Documentation: Auto-generated UI for testing and exploring endpoints using Swagger UI.
 In-Memory Storage: Fast, zero-configuration state management perfect for prototyping and local development.
@@ -8,6 +9,9 @@ Tech Stack:
 Language: JavaScript(Module)
 Runtime: Node.js
 Framework:Express
+Database: PostgreSQL
+Containerization and CI/CD: Docker
+Docker makes a development environment repeatable. 
 API Documentation: `swagger-ui`, OpenAPI
 All tasks are stored in an array of objects.
 Each task has the following properties:
@@ -24,19 +28,16 @@ So here's how it works and the API Endpoints:
 ```
 git clone git clone https://github.com/harito-git/flyrank-ai-todolist.git
 cd flyrank-ai-todolist
+#variables to set, see .env.example file.
 ```
-# 1. Initialize the repository and install the requried dependencies:
+# 1. Initialize the repository and install the requried dependencies to run with docker:
 ```
-npm init -y
-npm install express swagger-ui-express better-sqlite3
+#Then do the examples. 
+cp .env.example .env
+docker compose up
 ```
-# 2. Get started and use in your terminal:
-```
-node index.js
- ```
-# Why SQLite was chosen
-SQLite was chosen as the database since SQLite since it is serverless(no server), self-contained, reads/writes to only one database file, requires zero-setup and survives restarts. As well as requiring really easy to setup and coming with one file tasks.db. Traditional databases, modern ones such as PostgreSQl, you need multiple files of your own, as well as a seperate database. 
-The database lives at tasks.db. 
+# Why Docker was chosen
+Docker makes a dev environment repeatable.  
 
 # Example of SQL Query
 ```
@@ -45,18 +46,202 @@ SELECT * from tasks -- which lists every tasks. --
 Screenshot of example query
 <img width="861" height="694" alt="Screenshot_for_SQL_Database" src="https://github.com/user-attachments/assets/1ce03e11-1262-40a3-9dd7-16f8b02a33b6" />
 
-# AI vs me section
-So, what the AI did better was use a initilizeDatabase() function to handle the seed task and check if the whole database is empty for handling the seed tasks. Much cleaner code and schema. What the AI missed was that when deleting a task, it ran delete before checking any of the conditions, it did check if info.changes === 0. But, with sqlite or any database if it's empty. You will run into an error right away. What my prompt forget to specify is create a .gitignore file. So, before runnign it, when I ran npm install, there were 20 security vulnerabilties in the npm packages. 
+
 
 # Table of API Endpoints
 Here is a clear summary of all the available API endpoints implemented in your Express application.
+## Endpoints
 
-| Method | Endpoint | Description | Expected Status Codes & Responses |
-| --- | --- | --- | --- |
-| **GET** | `/` | Returns API metadata and a list of root endpoints. | `200 OK` — JSON object containing API name, version, and endpoints list. |
-| **GET** | `/health` | Application health check to confirm server status. | `200 OK` — `{"status": "ok"}` |
-| **GET** | `/tasks` | Retrieves the entire list of tasks. | `200 OK` — Array of all task objects. |
-| **GET** | `/tasks/:id` | Retrieves a single task by its unique ID. | `200 OK` — Task object.<br>
+### `GET /`
+
+Returns metadata about the API.
+
+**Response**
+
+```json
+{
+  "name": "Task API",
+  "version": "1.0",
+  "endpoints": ["/tasks"]
+}
+```
+
+**Example**
+
+```bash
+curl http://localhost:3000/
+```
+
+### `GET /health`
+
+Health check endpoint.
+
+**Response**
+
+```json
+{
+  "status": "ok"
+}
+```
+
+**Example**
+
+```bash
+curl http://localhost:3000/health
+```
+
+### `GET /tasks`
+
+Returns all tasks. Optional query parameters filter the list (the part after `?` — filters, not addresses).
+
+| Query | Example | Effect |
+|-------|---------|--------|
+| `done` | `?done=true` | Only finished tasks |
+| `done` | `?done=false` | Only open tasks |
+| `search` | `?search=milk` | Title contains the word (case-insensitive) |
+
+Filters can be combined: `?done=false&search=book`
+
+**Response**
+
+```json
+[
+  {
+    "id": 1,
+    "title": "Wash hands",
+    "done": false,
+  },
+  {
+    "id": 2,
+    "title": "Buy groceries",
+    "done": false,
+  },
+  {
+    "id": 3,
+    "title": "Clean room",
+    "done": false,
+  }
+]
+```
+
+**Example**
+
+```bash
+curl http://localhost:3000/tasks
+
+```
+
+
+### `GET /tasks/:id`
+
+Returns a single task by id.
+
+**Response (200)**
+
+```json
+{ "id": 1, "title": "Buy groceries", "done": false}
+```
+
+**Response (404)**
+
+```json
+{ "error": "Task 99 not found" }
+```
+
+**Example**
+
+```bash
+curl http://localhost:3000/tasks/1
+curl http://localhost:3000/tasks/99
+```
+
+### `POST /tasks`
+
+Creates a new task.
+
+**Request body**
+
+```json
+{ "title": "Buy milk" }
+```
+
+**Response (201)**
+
+```json
+{ "id": 4, "title": "Buy milk", "done": false, "created_at": "2026-07-24 11:20:00", "updated_at": "2026-07-24 11:20:00" }
+```
+
+**Response (400)**
+
+```json
+{ "error": "title is required and cannot be empty" }
+```
+
+**Example**
+
+```bash
+curl -X POST http://localhost:3000/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Buy milk"}'
+```
+
+### `PUT /tasks/:id`
+
+Updates a task's `title` and/or `done`. Send one or both fields; omitted fields stay unchanged.
+
+**Request body**
+
+```json
+{ "title": "Buy oat milk", "done": true }
+```
+
+**Response (200)**
+
+```json
+{ "id": 1, "title": "Buy oat milk", "done": true, "created_at": "2026-07-24 09:15:00", "updated_at": "2026-07-24 11:45:00" }
+```
+
+**Response (400)**
+
+```json
+{ "error": "request body must include title and/or done" }
+```
+
+**Response (404)**
+
+```json
+{ "error": "Task 99 not found" }
+```
+
+**Example**
+
+```bash
+curl -X PUT http://localhost:3000/tasks/1 \
+  -H "Content-Type: application/json" \
+  -d '{"done": true}'
+```
+
+### `DELETE /tasks/:id`
+
+Deletes a task.
+
+**Response (204)**
+
+Empty body — success, nothing to return.
+
+**Response (404)**
+
+```json
+{ "error": "Task 99 not found" }
+```
+
+**Example**
+
+```bash
+curl -X DELETE http://localhost:3000/tasks/1
+```
+ <br>
+
 
 <br>`404 Not Found` — Error string if ID does not exist. |
 | **POST** | `/tasks` | Creates and appends a new task to the list. | `201 Created` — The newly created task object.<br>
@@ -76,7 +261,8 @@ Output of A Curl Endpoint:
 
 example: GET /tasks
 
-<img width="543" height="158" alt="Screenshot of API Response" src="https://github.com/user-attachments/assets/52dfd9be-1e71-49ec-a03f-c6d0b8c25748" />
+![alt text](<Screenshot 2026-08-03 at 4.11.50 PM.png>)
+
 
 Screenshot of Swagger UI:
 
