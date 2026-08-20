@@ -17,4 +17,7 @@ lerna-error.log*
 node_modules/
 .env
 .env.local
-
+.Dockerfile
+compose.yaml
+.db
+.sqbpro
